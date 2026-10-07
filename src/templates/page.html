@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ page.title }} — Peroxide DB{% endblock %}
+{% block content %}
+<p class="breadcrumb"><a href="{{ home }}">Início</a> › <a href="{{ category_url }}">{{ page.category }}</a> › {{ page.title }}</p>
+<h1>{{ page.title }}</h1>
+<p><span class="pill"><a href="{{ category_url }}">{{ page.category }}</a></span>
+<small><a href="{{ page.url }}" rel="nofollow">fonte original</a></small></p>
+{% if page.infobox and page.infobox.rows %}
+<aside class="infobox">
+  <table>
+    {% if page.infobox.headers %}<thead><tr>{% for h in page.infobox.headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>{% endif %}
+    <tbody>
+      {% for row in page.infobox.rows %}
+      <tr>{% for c in row %}<td>{{ c }}</td>{% endfor %}</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</aside>
+{% endif %}
+{% for sec in page.sections %}
+<section class="sec">
+  {% if sec.heading and sec.heading != "Visão Geral" %}
+    {% if sec.level == 2 %}<h2>{{ sec.heading }}</h2>
+    {% elif sec.level == 3 %}<h3>{{ sec.heading }}</h3>
+    {% else %}<h4>{{ sec.heading }}</h4>{% endif %}
+  {% endif %}
+  <div class="sec-body">{{ sec.html | safe }}</div>
+</section>
+{% endfor %}
+{% if page.tables %}
+<h2>Tabelas</h2>
+{% for t in page.tables %}
+<table class="wikitable">
+  {% if t.headers %}<thead><tr>{% for h in t.headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>{% endif %}
+  <tbody>{% for row in t.rows %}<tr>{% for c in row %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table>
+{% endfor %}
+{% endif %}
+{% if related %}
+<h2>Ver também</h2>
+<ul>{% for r in related %}<li><a href="{{ r.slug }}.html">{{ r.title }}</a></li>{% endfor %}</ul>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ category }} — Peroxide DB{% endblock %}
+{% block content %}
+<p class="breadcrumb"><a href="{{ home }}">Início</a> › {{ category }}</p>
+<h1>{{ category }} <small>({{ pages|length }})</small></h1>
+<ul class="pagelist">
+{% for p in pages %}
+<li><a href="{{ page_url[p.slug] }}">{{ p.title }}</a><br><small>{{ p.summary[:160] }}</small></li>
+{% endfor %}
+</ul>
+{% endblock %}

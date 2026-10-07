@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Peroxide DB{% endblock %}</title>
+<link rel="icon" type="image/svg+xml" href="{{ asset }}favicon.svg">
+<link rel="stylesheet" href="{{ asset }}style.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="Abrir menu">☰</button>
+  <a class="brand" href="{{ home }}">Peroxide DB</a>
+  <span class="count">{{ total }} páginas</span>
+  <a class="search-link" href="{{ search_page }}">Buscar</a>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <input type="search" id="sideSearch" placeholder="Buscar... (Enter vai p/ busca)" autocomplete="off">
+    <nav>
+      <p class="nav-title">Categorias</p>
+      <ul>
+        {% for cat in categories %}
+        <li><a href="{{ cat_url[cat] }}">{{ cat }} <span class="badge">{{ cat_counts[cat] }}</span></a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+  </aside>
+  <main class="content">
+    {% block content %}{% endblock %}
+    <footer><p>Conteúdo textual do wiki Peroxide Roblox (Fandom), reorganizado. Sem afiliação oficial.</p></footer>
+  </main>
+</div>
+<script src="{{ asset }}app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

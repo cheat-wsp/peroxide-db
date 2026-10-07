@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Buscar — Peroxide DB{% endblock %}
+{% block content %}
+<h1>Buscar</h1>
+<form id="searchForm" class="big-search">
+  <input type="search" id="q" name="q" placeholder="Digite para buscar..." autocomplete="off">
+  <button type="submit">Buscar</button>
+</form>
+<p id="status"></p>
+<ul id="results" class="pagelist"></ul>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+<script>
+(function(){
+  const params = new URLSearchParams(location.search);
+  const initial = params.get('q') || '';
+  const input = document.getElementById('q');
+  const status = document.getElementById('status');
+  const results = document.getElementById('results');
+  input.value = initial;
+  fetch('{{ asset }}data/search-index.json').then(r => r.json()).then(docs => {
+    const fuse = new Fuse(docs, {keys: ['title', 'content'], threshold: 0.4, includeScore: true});
+    function run(q){
+      if(!q){ status.textContent = docs.length + ' páginas indexadas.'; results.innerHTML=''; return; }
+      const out = fuse.search(q).slice(0, 50);
+      status.textContent = out.length + ' resultado(s) para "' + q + '"';
+      results.innerHTML = out.map(o => {
+        const d = o.item;
+        return '<li><a href="../pagina/' + d.slug + '.html">' + d.title + '</a> <small>· ' + d.category + '</small><br><small>' + (d.content||'').slice(0,160) + '</small></li>';
+      }).join('');
+    }
+    document.getElementById('searchForm').addEventListener('submit', e => { e.preventDefault(); run(input.value.trim()); });
+    input.addEventListener('input', () => run(input.value.trim()));
+    run(initial);
+  }).catch(() => { status.textContent = 'Falha ao carregar índice de busca.'; });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Peroxide DB — Wiki Peroxide Roblox{% endblock %}
+{% block content %}
+<h1>Peroxide DB</h1>
+<p>Database estática do <strong>Peroxide (Roblox)</strong> extraída do wiki oficial. {{ total }} páginas em {{ categories|length }} categorias.</p>
+<form action="{{ search_page }}" method="get" class="big-search">
+  <input type="search" name="q" placeholder='Buscar ex: "hollow", "bankai", "vollstandig"...'>
+  <button type="submit">Buscar</button>
+</form>
+<h2>Categorias</h2>
+<div class="grid">
+  {% for cat in categories %}
+  <a class="card" href="{{ cat_url[cat] }}">
+    <strong>{{ cat }}</strong>
+    <span>{{ cat_counts[cat] }} páginas</span>
+  </a>
+  {% endfor %}
+</div>
+<h2>Últimas páginas</h2>
+<ul class="pagelist">
+  {% for p in recent %}
+  <li><a href="{{ page_url[p.slug] }}">{{ p.title }}</a> <small>· {{ p.category }}</small><br><small>{{ p.summary[:140] }}</small></li>
+  {% endfor %}
+</ul>
+{% endblock %}
