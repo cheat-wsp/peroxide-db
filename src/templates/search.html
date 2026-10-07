@@ -28,7 +28,7 @@
       status.textContent = out.length + ' resultado(s) para "' + q + '"';
       results.innerHTML = out.map(o => {
         const d = o.item;
-        return '<li><a href="../pagina/' + d.slug + '.html">' + d.title + '</a> <small>· ' + d.category + '</small><br><small>' + (d.content||'').slice(0,160) + '</small></li>';
+        return '<li><a href="pagina/' + d.slug + '.html">' + d.title + '</a> <small>· ' + d.category + '</small><br><small>' + (d.content||'').slice(0,160) + '</small></li>';
       }).join('');
     }
     document.getElementById('searchForm').addEventListener('submit', e => { e.preventDefault(); run(input.value.trim()); });
