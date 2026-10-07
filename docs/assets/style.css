@@ -43,4 +43,7 @@ th{background:var(--card)}
 .sec-body img,.sec-body figure,.sec-body aside{display:none}
 .sec-body a{color:#c4b5fd}
 footer{margin-top:40px;color:var(--mut);font-size:.85rem;border-top:1px solid var(--line);padding-top:12px}
+/* Vídeo responsivo (páginas curadas com tutorial) */
+.video{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;border:1px solid var(--line);margin:12px 0}
+.video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 @media(max-width:800px){.sidebar{position:fixed;left:-300px;top:53px;transition:left .2s;z-index:20}.sidebar.open{left:0}.menu-btn{display:block}.infobox{float:none;width:100%;margin:0 0 16px 0}}

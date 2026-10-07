@@ -1,0 +1,35 @@
+[
+  {
+    "slug": "how-get-weapon-ressurection",
+    "title": "How to Get Weapon Ressurection",
+    "category": "Guias",
+    "url": "https://youtu.be/AfQsidWXawc",
+    "summary": "Tutorial em vídeo: como conseguir a arma da ressurreição (Segunda Weapon) como Arrancar — requisitos, Hollow Prince na Menos Forest e a luta.",
+    "curated": true,
+    "sections": [
+      {
+        "level": 2,
+        "heading": "Visão Geral",
+        "html": "<p>Este é um tutorial em vídeo de como conseguir a <strong>arma da ressurreição</strong> (Segunda Weapon) jogando de <strong>Arrancar</strong>. A arma liberada depende da sua Resurrección. Veja também a página <a href=\"segunda-weapon.html\">Segunda Weapon</a> com o passo a passo em texto.</p>"
+      },
+      {
+        "level": 2,
+        "heading": "Vídeo tutorial",
+        "html": "<div class=\"video\"><iframe width=\"560\" height=\"315\" src=\"https://www.youtube-nocookie.com/embed/AfQsidWXawc\" title=\"How get weapon ressurection\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div><p><a href=\"https://youtu.be/AfQsidWXawc\" rel=\"nofollow\">Abrir o vídeo no YouTube</a></p>"
+      },
+      {
+        "level": 2,
+        "heading": "Resumo dos passos",
+        "html": "<ol><li>Seja um <strong>Arrancar</strong> (evoluindo de Hollow) com rank e nível necessários.</li><li>Complete os requisitos (pontos de Time Gate, Time Bubbles, Invasões etc.).</li><li>Vá para a <strong>Menos Forest</strong> e encontre o <strong>Hollow Prince</strong> no prédio em ruínas.</li><li>Derrote-o para desbloquear a arma da sua Resurrección.</li></ol>"
+      }
+    ],
+    "infobox": null,
+    "tables": [],
+    "internal_links": [
+      {"slug": "segunda-weapon", "label": "Segunda Weapon"},
+      {"slug": "resurreccion", "label": "Resurrección"},
+      {"slug": "arrancar", "label": "Arrancar"},
+      {"slug": "hollow-starter-guide", "label": "Hollow Starter Guide"}
+    ]
+  }
+]

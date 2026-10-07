@@ -32,7 +32,7 @@ def texto_puro(html: str) -> str:
         return ""
 
 
-def reescrever_links_internos(html: str, slugs_validos: set[str]) -> str:
+def reescrever_links_internos(html: str, slugs_validos: set[str], manter_iframe: bool = False) -> str:
     """Converte <a href=/wiki/X> em links relativos pagina/x.html (só se slug existe)."""
     if not html:
         return ""
@@ -54,14 +54,23 @@ def reescrever_links_internos(html: str, slugs_validos: set[str]) -> str:
                 a["rel"] = "nofollow"
         elif href.startswith("http"):
             a["rel"] = "nofollow"
-    # remove imgs/scripts que sobraram
-    for tag in soup.select("script, style, img, figure, aside, iframe, video, audio"):
+    # remove imgs/scripts que sobraram (páginas curadas podem manter iframe do YouTube)
+    for tag in soup.select("script, style, img, figure, aside, video, audio"):
         tag.decompose()
+    if not manter_iframe:
+        for tag in soup.select("iframe"):
+            tag.decompose()
+    else:
+        # só permite YouTube, resto sai
+        for tag in soup.select("iframe"):
+            src = tag.get("src", "")
+            if "youtube" not in src and "youtu.be" not in src:
+                tag.decompose()
     return str(soup)
 
 
 def carregar_paginas() -> list[dict]:
-    """Carrega todas as páginas de data/raw/*.json (fallback p/ pages.json)."""
+    """Carrega todas as páginas de data/raw/*.json + curadas de data/extras.json."""
     paginas = []
     if RAW_DIR.exists():
         for f in sorted(RAW_DIR.glob("*.json")):
@@ -69,6 +78,19 @@ def carregar_paginas() -> list[dict]:
                 paginas.append(json.loads(f.read_text(encoding="utf-8")))
             except Exception as e:
                 print(f"[warn] {f.name}: {e}")
+    # Páginas curadas (criadas manualmente, ex: tutorial em vídeo). Não são
+    # sobrescritas pelo scraper e entram no site, índice e busca normalmente.
+    extras_file = BASE / "data" / "extras.json"
+    if extras_file.exists():
+        try:
+            extras = json.loads(extras_file.read_text(encoding="utf-8"))
+            for p in extras:
+                p.setdefault("scraped_at", "curated")
+                p.setdefault("curated", True)
+                paginas.append(p)
+            print(f"Páginas curadas: {len(extras)}")
+        except Exception as e:
+            print(f"[warn] extras.json: {e}")
     if not paginas and PAGES_JSON.exists():
         print("[warn] sem raw/, usando só índice (sem seções).")
     return sorted(paginas, key=lambda p: p.get("slug", ""))
@@ -89,8 +111,9 @@ def main():
     slugs = {p["slug"] for p in paginas}
     # Reescreve links internos + limpa html
     for p in paginas:
+        curada = bool(p.get("curated"))
         for sec in p.get("sections", []):
-            sec["html"] = reescrever_links_internos(sec.get("html", ""), slugs)
+            sec["html"] = reescrever_links_internos(sec.get("html", ""), slugs, manter_iframe=curada)
 
     # Agrupa por categoria
     por_cat: dict[str, list[dict]] = {}
