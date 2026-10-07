@@ -60,7 +60,7 @@
   <main class="content">
     
 <h1>Buscar</h1>
-<p><small>A busca usa os termos originais em inglês (ex: "hollow", "bankai").</small></p>
+<p><small>Funciona em português e inglês (ex: "arma da ressurreição", "hollow", "bankai").</small></p>
 <form id="searchForm" class="big-search">
   <input type="search" id="q" name="q" placeholder="Digite para buscar..." autocomplete="off">
   <button type="submit">Buscar</button>
@@ -104,27 +104,88 @@ function googleTranslateElementInit() {
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 <script>
 (function(){
-  const params = new URLSearchParams(location.search);
-  const initial = params.get('q') || '';
-  const input = document.getElementById('q');
-  const status = document.getElementById('status');
-  const results = document.getElementById('results');
+  // Dicionário PT-BR -> EN (vocabulário do jogo). Chaves sem acento/minúsculas.
+  var SINONIMOS = {
+    arma: ['weapon'], armas: ['weapon', 'weapons'],
+    ressurreicao: ['resurrection', 'resurreccion'], ressureicao: ['resurrection', 'resurreccion'],
+    espada: ['sword', 'blade'], espadas: ['sword', 'blade'],
+    guia: ['guide'], guias: ['guide'], tutorial: ['guide', 'starter'], iniciante: ['starter'],
+    como: ['guide'], comeca: ['starter'], começar: ['starter'],
+    chefe: ['boss'], chefes: ['boss'], raide: ['raid'],
+    evento: ['event'], eventos: ['event'],
+    item: ['item'], itens: ['item', 'items'],
+    local: ['location'], locais: ['location'], mapa: ['map'], onde: ['location', 'map'],
+    personagem: ['character', 'npc'], personagens: ['character', 'npc'],
+    raca: ['race'], classe: ['race'],
+    habilidade: ['skill', 'ability'], habilidades: ['skill', 'ability'], poder: ['power'],
+    codigo: ['code'], codigos: ['code', 'codes'],
+    atualizacao: ['update'],
+    missao: ['quest', 'mission'], missoes: ['quest'], quest: ['quest'],
+    floresta: ['forest'], castelo: ['castle', 'las', 'noches'],
+    loja: ['shop', 'store', 'vendor'], vendedor: ['vendor'],
+    dinheiro: ['yen', 'money'], nivel: ['level'], rank: ['rank'],
+    ponto: ['points'], pontos: ['points'],
+    invasao: ['invasion'], invasoes: ['invasion'],
+    masmorra: ['delve'], traco: ['trait'], essencia: ['essence'],
+    reliquia: ['relic'], cristal: ['crystal'], cristais: ['crystal'],
+    acessorio: ['accessory'], cla: ['clan'], faccao: ['faction'],
+    combate: ['combat'], mecanica: ['mechanics'],
+    roupa: ['clothing', 'skin'], skin: ['skin'],
+    modo: ['mode'], segunda: ['segunda'], etapa: ['etapa'],
+    hollow: ['hollow'], shinigami: ['shinigami'], quincy: ['quincy'],
+    arrancar: ['arrancar'], fullbringer: ['fullbring'],
+    menos: ['menos'], vasto: ['vasto'], bomba: ['bomb']
+  };
+  var STOP = {a:1, o:1, e:1, de:1, da:1, do:1, das:1, dos:1, em:1, no:1, na:1,
+    para:1, com:1, um:1, uma:1, the:1, of:1, to:1, and:1, in:1, on:1, for:1};
+  function norm(s) {
+    return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+  function expandir(q) {
+    var toks = norm(q).split(/[^a-z0-9]+/).filter(function(t){ return t && !STOP[t]; });
+    var out = [];
+    toks.forEach(function(t){
+      if (out.indexOf(t) === -1) out.push(t);
+      (SINONIMOS[t] || []).forEach(function(s){
+        if (out.indexOf(s) === -1) out.push(s);
+      });
+    });
+    return out;
+  }
+  var params = new URLSearchParams(location.search);
+  var initial = params.get('q') || '';
+  var input = document.getElementById('q');
+  var status = document.getElementById('status');
+  var results = document.getElementById('results');
   input.value = initial;
-  fetch('assets/data/search-index.json').then(r => r.json()).then(docs => {
-    const fuse = new Fuse(docs, {keys: ['title', 'content'], threshold: 0.4, includeScore: true});
+  fetch('assets/data/search-index.json').then(function(r){ return r.json(); }).then(function(docs){
+    var fuse = new Fuse(docs, {keys: ['title', 'content'], threshold: 0.4, includeScore: true});
     function run(q){
-      if(!q){ status.textContent = docs.length + ' páginas indexadas.'; results.innerHTML=''; return; }
-      const out = fuse.search(q).slice(0, 50);
-      status.textContent = out.length + ' resultado(s) para "' + q + '"';
-      results.innerHTML = out.map(o => {
-        const d = o.item;
+      var toks = expandir(q);
+      if(!toks.length){ status.textContent = docs.length + ' páginas indexadas.'; results.innerHTML=''; return; }
+      var agg = {};
+      toks.forEach(function(t){
+        fuse.search(t, {limit: 50}).forEach(function(o){
+          var s = o.item.slug;
+          if(!agg[s]) agg[s] = {doc: o.item, hits: 0, score: 0};
+          agg[s].hits += 1;
+          agg[s].score += (o.score == null ? 1 : o.score);
+        });
+      });
+      var ranked = Object.keys(agg).map(function(k){ return agg[k]; }).sort(function(a, b){
+        if (b.hits !== a.hits) return b.hits - a.hits;
+        return a.score - b.score;
+      }).slice(0, 50);
+      status.textContent = ranked.length + ' resultado(s) para "' + q + '"';
+      results.innerHTML = ranked.map(function(o){
+        var d = o.doc;
         return '<li><a href="pagina/' + d.slug + '.html">' + d.title + '</a> <small>· ' + d.category + '</small><br><small>' + (d.content||'').slice(0,160) + '</small></li>';
       }).join('');
     }
-    document.getElementById('searchForm').addEventListener('submit', e => { e.preventDefault(); run(input.value.trim()); });
-    input.addEventListener('input', () => run(input.value.trim()));
+    document.getElementById('searchForm').addEventListener('submit', function(e){ e.preventDefault(); run(input.value.trim()); });
+    input.addEventListener('input', function(){ run(input.value.trim()); });
     run(initial);
-  }).catch(() => { status.textContent = 'Falha ao carregar índice de busca.'; });
+  }).catch(function(){ status.textContent = 'Falha ao carregar índice de busca.'; });
 })();
 </script>
 
