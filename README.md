@@ -17,6 +17,16 @@ arquivos JSON gerados no build + páginas HTML pré-renderizadas.
 > mas o código usa `lxml` se disponível e cai para `html.parser` quando não há
 > wheel (ex: Termux/Android). O comportamento é idêntico para este uso.
 
+## Idioma (PT-BR/EN)
+
+O conteúdo do wiki é em inglês. O site abre **traduzido para PT-BR por padrão**
+via Google Translate (widget gratuito, sem chave) com botões **PT-BR | EN** no
+topo. A busca usa os termos originais em inglês.
+
+> Tradução automática em massa via API foi descartada: o endpoint gratuito do
+> Google bloqueia por rate-limit (HTTP 429) e os espelhos LibreTranslate estão
+> fora do ar. A tradução client-side tem qualidade neural e custo zero.
+
 ## Como instalar
 
 ```bash
@@ -75,3 +85,12 @@ Por página (`data/raw/{slug}.json`):
 
 Categorias em `src/categories.py` (fallback: `Outros`).
 Atualização automática: `.github/workflows/update.yml` (domingo 03:00 UTC).
+
+## Observações sobre cobertura
+
+- 2 URLs de `/root/links.md` são **redirects quebrados no próprio wiki**
+  (`Ressurection_weapon` → "Resurection weapon" inexistente,
+  `Please_let_me_make_this` → "Spare Page" inexistente). Não há conteúdo para
+  extrair; ficam registradas em `data/failed.json`.
+- Slugs duplicados (ex: `Horn_of_salvation` vs `Horn_of_Salvation`) ganham
+  sufixo (`horn-of-salvation-2`) para nenhuma página se perder.

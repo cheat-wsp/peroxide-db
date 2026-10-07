@@ -11,9 +11,14 @@
 <header class="topbar">
   <button class="menu-btn" id="menuBtn" aria-label="Abrir menu">☰</button>
   <a class="brand" href="../index.html">Peroxide DB</a>
-  <span class="count">314 páginas</span>
+  <span class="count">315 páginas</span>
+  <div class="lang-toggle" role="group" aria-label="Idioma">
+    <button id="langPt" type="button">PT-BR</button>
+    <button id="langEn" type="button">EN</button>
+  </div>
   <a class="search-link" href="../search.html">Buscar</a>
 </header>
+<div id="google_translate_element" style="display:none"></div>
 <div class="layout">
   <aside class="sidebar" id="sidebar">
     <input type="search" id="sideSearch" placeholder="Buscar... (Enter vai p/ busca)" autocomplete="off">
@@ -43,7 +48,7 @@
         
         <li><a href="../categorias/organizacoes.html">Organizações <span class="badge">9</span></a></li>
         
-        <li><a href="../categorias/outros.html">Outros <span class="badge">137</span></a></li>
+        <li><a href="../categorias/outros.html">Outros <span class="badge">138</span></a></li>
         
         <li><a href="../categorias/quincy.html">Quincy <span class="badge">6</span></a></li>
         
@@ -113,6 +118,34 @@ Unstrip post‐expand size: 0/5000000 bytes</p><p>Transclusion expansion time re
   </main>
 </div>
 <script src="../assets/app.js"></script>
+<script>
+// Toggle PT-BR/EN via Google Translate (gratuito, sem chave).
+// Padrão: PT-BR (traduz automaticamente na primeira visita).
+function googTransCookie(val) {
+  document.cookie = 'googtrans=' + val + ';path=/';
+  document.cookie = 'googtrans=' + val + ';path=/;domain=' + location.hostname;
+}
+function tradutorParaPT() { googTransCookie('/en/pt'); location.reload(); }
+function tradutorParaEN() { googTransCookie('/en/en'); location.reload(); }
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement(
+    {pageLanguage: 'en', includedLanguages: 'en,pt', autoDisplay: false},
+    'google_translate_element');
+}
+(function () {
+  var m = document.cookie.match(/(?:^|;)\s*googtrans=([^;]*)/);
+  var pt = !m || m[1].indexOf('/pt') !== -1;
+  var bPt = document.getElementById('langPt'), bEn = document.getElementById('langEn');
+  if (bPt && bEn) {
+    bPt.classList.toggle('active', pt);
+    bEn.classList.toggle('active', !pt);
+    bPt.addEventListener('click', tradutorParaPT);
+    bEn.addEventListener('click', tradutorParaEN);
+  }
+  if (!m) { googTransCookie('/en/pt'); location.reload(); }  // primeira visita: PT-BR
+})();
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 </body>
 </html>

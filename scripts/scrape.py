@@ -73,6 +73,27 @@ def url_para_slug(url: str) -> str:
     return s or "page"
 
 
+def resolver_slugs(urls: list[str]) -> dict[str, str]:
+    """Mapeia cada URL a um slug ÚNICO (colisão ganha sufixo -2, -3...).
+
+    Ex: Horn_of_salvation e Horn_of_Salvation geram o mesmo slug base;
+    a segunda URL recebe 'horn-of-salvation-2'. Ordem determinística
+    (ordem da lista), então o resultado é estável entre execuções.
+    """
+    usados: set[str] = set()
+    mapa: dict[str, str] = {}
+    for url in urls:
+        base = url_para_slug(url)
+        slug = base
+        n = 2
+        while slug in usados:
+            slug = f"{base}-{n}"
+            n += 1
+        usados.add(slug)
+        mapa[url] = slug
+    return mapa
+
+
 def url_para_titulo(url: str) -> str:
     """Extrai o título da página (ex: 'Segunda_Etapa') a partir da URL."""
     parte = url.split("/wiki/", 1)[1].split("?")[0].split("#")[0]
@@ -330,8 +351,9 @@ def main(limit: int | None = None, only: list[str] | None = None):
     falhas: list[dict] = []
 
     with httpx.Client(headers={"User-Agent": UA}, timeout=30.0) as client:
+        slugs_unicos = resolver_slugs(urls)
         for i, url in enumerate(urls, 1):
-            slug = url_para_slug(url)
+            slug = slugs_unicos[url]
             titulo_pagina = url_para_titulo(url)
             destino = RAW_DIR / f"{slug}.json"
             if cache_valido(destino):
@@ -371,12 +393,13 @@ def main(limit: int | None = None, only: list[str] | None = None):
     final = sorted(por_slug.values(), key=lambda x: x["slug"])
     PAGES_JSON.write_text(json.dumps(final, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # Falhas: mescla também
+    # Falhas: mantém só o que falhou NESTA rodada + falhas antigas ainda não recuperadas
+    ok_urls = {u for u in urls if slugs_unicos[u] in {p["slug"] for p in ok}}
     try:
         f_ant = json.loads(FAILED_JSON.read_text(encoding="utf-8")) if FAILED_JSON.exists() else []
     except Exception:
         f_ant = []
-    FAILED_JSON.write_text(json.dumps(falhas + [f for f in f_ant if f.get("url") not in {x["url"] for x in falhas}], ensure_ascii=False, indent=2), encoding="utf-8")
+    FAILED_JSON.write_text(json.dumps(falhas + [f for f in f_ant if f.get("url") not in ok_urls and f.get("url") not in {x["url"] for x in falhas}], ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(f"OK nesta rodada: {len(ok)} | Falhas nesta rodada: {len(falhas)} | Total no índice: {len(final)}")
 
