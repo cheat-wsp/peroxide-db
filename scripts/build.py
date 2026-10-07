@@ -109,6 +109,23 @@ def main():
         return
 
     slugs = {p["slug"] for p in paginas}
+    # Overrides curados (ex: guia hollow reescrito): substituem o conteúdo da
+    # página original mantendo slug/url, com o mesmo template das demais.
+    ov_dir = BASE / "data" / "overrides"
+    if ov_dir.exists():
+        for f in sorted(ov_dir.glob("*.json")):
+            try:
+                ov = json.loads(f.read_text(encoding="utf-8"))
+            except Exception as e:
+                print(f"[warn] override {f.name}: {e}")
+                continue
+            for p in paginas:
+                if p["slug"] == ov.get("slug"):
+                    for campo in ("title", "summary", "sections", "infobox", "tables", "internal_links"):
+                        if campo in ov:
+                            p[campo] = ov[campo]
+                    print(f"Override aplicado: {p['slug']} ({f.name})")
+                    break
     # Reescreve links internos + limpa html
     for p in paginas:
         curada = bool(p.get("curated"))
