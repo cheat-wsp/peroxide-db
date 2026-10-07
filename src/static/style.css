@@ -43,6 +43,9 @@ th{background:var(--card)}
 .sec-body img,.sec-body figure,.sec-body aside{display:none}
 .sec-body a{color:#c4b5fd}
 footer{margin-top:40px;color:var(--mut);font-size:.85rem;border-top:1px solid var(--line);padding-top:12px}
+/* Botão Discord oficial (página inicial) */
+.discord-btn{display:inline-flex;align-items:center;gap:10px;background:#5865F2;color:#fff;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:12px;margin:4px 0 8px}
+.discord-btn:hover{background:#4752C4}
 /* Vídeo responsivo (páginas curadas com tutorial) */
 .video{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;border:1px solid var(--line);margin:12px 0}
 .video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
